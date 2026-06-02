@@ -1,0 +1,8 @@
+<library path="nxt_system">
+  <class name="nxt_hardware/NXTSystem"
+         type="nxt_hardware::NXTSystem"
+         base_class_type="hardware_interface::SystemInterface">
+    <description>NXT Hardware interface plugin </description>
+  </class>
+
+</library>

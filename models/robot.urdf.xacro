@@ -1,0 +1,225 @@
+<?xml version="1.0"?>
+
+<robot name="diff_robot" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+<!-- CONSTANTS -->
+<xacro:property name="pi_const" value="3.14159265"/>
+
+<!-- body params -->
+<xacro:property name="a" value="1.0" />
+<xacro:property name="b" value="0.3" />   
+<xacro:property name="c" value="0.6" />   
+
+<!-- wheel params -->
+<xacro:property name="r" value="0.15" />
+<xacro:property name="d" value="0.1" />
+
+<xacro:property name="s1" value="${b/2+r}" /> 
+<xacro:property name="s2" value="${2*r}" /> 
+<xacro:property name="s3" value="${2*r}" /> 
+<xacro:property name="s4" value="${c/2+d/2}" />
+
+<!-- densities -->
+<xacro:property name="d1" value="2710.0" />
+<xacro:property name="d2" value="2710.0" />
+<xacro:property name="d3" value="2710.0" />
+
+<!-- MASS -->
+<xacro:property name="m1" value="${d1*a*b*c}" />
+<xacro:property name="m2" value="${d2*pi_const*r*r*d}" />
+<xacro:property name="m3" value="${d3*(4.0/3.0)*pi_const*r*r*r}" />
+
+<!-- INERTIA (BODY) -->
+<xacro:property name="Ix_body" value="${(1/12)*m1*(b*b + c*c)}" />
+<xacro:property name="Iy_body" value="${(1/12)*m1*(a*a + c*c)}" />
+<xacro:property name="Iz_body" value="${(1/12)*m1*(a*a + b*b)}" />
+
+<!--INERTIA (WHEELS) -->
+<xacro:property name="Izz_wheel" value="${0.5*m2*r*r}" />
+<xacro:property name="Iyy_wheel" value="${(1/12)*m2*(3*r*r + d*d)}" />
+
+<!-- castor -->
+<xacro:property name="I_castor" value="${(2/5)*m3*r*r}" />
+
+<!-- include the gazebo file configuration -->
+
+<!--base link -->
+<link name="base_link"></link>
+<joint name="base_joint" type="fixed">
+  <parent link="base_link" />
+  <child link="body_link" />
+</joint>
+
+<!-- body link -->
+<link name="body_link">
+
+  <visual>
+        <origin rpy="0 0 0 " xyz="0 0 ${s1}" />
+        <geometry>
+            <box size="${a} ${c} ${b}"/>
+        </geometry>
+    </visual>
+
+    <collision>
+        <origin rpy="0 0 0 " xyz="0 0 ${s1}" />
+        <geometry>
+            <box size="${a} ${c} ${b}"/>
+        </geometry>
+    </collision>
+
+    <inertial>
+        <mass value="${m1}"/>
+        <inertia ixx="${Ix_body}" iyy="${Iy_body}" izz="${Iz_body}"
+                 ixy="0" ixz="0" iyz="0"/>
+    </inertial>
+
+</link>
+
+<!--LEFT WHEEL -->
+<link name="left_wheel">
+
+    <visual>
+      <origin rpy="1.5708 0 0 " xyz="0 0 0 " />
+      <geometry>
+            <cylinder radius="${r}" length="${d}"/>
+        </geometry>
+    </visual>
+
+    <collision>
+        <origin rpy="1.5708 0 0" xyz="0 0 0 " />
+
+        <geometry>
+            <cylinder radius="${r}" length="${d}"/>
+        </geometry>
+    </collision>
+
+    <inertial>
+        <mass value="${m2}"/>
+        <inertia ixx="${Iyy_wheel}" iyy="${Iyy_wheel}" izz="${Izz_wheel}"
+ixy="0" ixz="0" iyz="0"/>
+    </inertial>
+
+</link>
+
+<!-- RIGHT WHEEL -->
+<link name="right_wheel">
+
+    <visual>
+        <origin rpy="1.5708 0 0" xyz="0 0 0 " />
+        <geometry>
+            <cylinder radius="${r}" length="${d}"/>
+        </geometry>
+    </visual>
+
+    <collision>
+        <origin rpy="1.5708 0 0" xyz="0 0 0 " />
+
+        <geometry>
+            <cylinder radius="${r}" length="${d}"/>
+        </geometry>
+    </collision>
+
+    <inertial>
+        <mass value="${m2}"/>
+        <inertia ixx="${Iyy_wheel}" iyy="${Iyy_wheel}" izz="${Izz_wheel}"
+                 ixy="0" ixz="0" iyz="0"/>
+    </inertial>
+
+</link>
+
+<!-- JOINTS -->
+
+<!-- LEFT WHEEL -->
+<joint name="left_wheel_joint" type="continuous">
+    <parent link="body_link"/>
+    <child link="left_wheel"/>
+    <origin xyz="${-s2} ${-s4} ${r}" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+</joint>
+
+<!-- RIGHT WHEEL -->
+<joint name="right_wheel_joint" type="continuous">
+    <parent link="body_link"/>
+    <child link="right_wheel"/>
+    <origin xyz="${-s2} ${s4} ${r}" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+</joint>
+
+<!-- CASTOR WHEEL -->
+<link name="castor_wheel">
+
+    <visual>
+        <geometry>
+            <sphere radius="${r}"/>
+        </geometry>
+    </visual>
+
+    <collision>
+        <geometry>
+            <sphere radius="${r}"/>
+        </geometry>
+    </collision>
+
+    <inertial>
+        <mass value="${m3}"/>
+        <inertia ixx="${I_castor}" iyy="${I_castor}" izz="${I_castor}"
+                 ixy="0" ixz="0" iyz="0"/>
+    </inertial>
+
+</link>
+
+<joint name="castor_joint" type="fixed">
+    <parent link="body_link"/>
+    <child link="castor_wheel"/>
+    <origin xyz="${s3} 0 ${r}" rpy="0 0 0"/>
+</joint>
+
+<!-- lidar link and joint -->
+
+<link name="lidar_link">
+
+  <visual>
+        <origin xyz="0 0 0" rpy="0 0 0 " />
+        <geometry>
+            <cylinder radius="0.1" length="0.1"/>
+        </geometry>
+  </visual>
+  <collision>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+            <cylinder radius="0.1" length="0.1" />
+        </geometry>
+  </collision>      
+
+  <inertial>
+        <mass value="1e-6"/>
+        <inertia ixx="0.0001" iyy="0.0001" izz="0.0001"
+                 ixy="0" ixz="0" iyz="0"/>
+  </inertial>
+
+</link>
+<joint name="lidar_joint" type="fixed">
+    <parent link="body_link"/>
+    <child link="lidar_link"/>
+    <origin xyz="0 0 ${s1+0.05}" rpy="1.5708 0 0"/>
+    <axis xyz="0 1 0" rpy="0 0 0" />
+</joint>
+
+<!--ros2 control addition -->
+<ros2_control name="NXTSystem" type="system">
+  <hardware>
+    <plugin>nxt_hardware/NXTSystem</plugin>
+  </hardware>
+  <joint name="left_wheel_joint">
+    <command_interface name="velocity" />
+    <state_interface name="position" />
+    <state_interface name="velocity" />
+  </joint>
+
+  <joint name="right_wheel_joint">
+    <command_interface name="velocity" />
+    <state_interface name="position" />
+    <state_interface name="velocity" />
+  </joint>
+</ros2_control>
+</robot>
