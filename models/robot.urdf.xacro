@@ -206,9 +206,9 @@ ixy="0" ixz="0" iyz="0"/>
 </joint>
 
 <!--ros2 control addition -->
-<ros2_control name="NXTSystem" type="system">
+<ros2_control name="MockSystem" type="system">
   <hardware>
-    <plugin>nxt_hardware/NXTSystem</plugin>
+    <plugin>mock_components/GenericSystem</plugin>
   </hardware>
   <joint name="left_wheel_joint">
     <command_interface name="velocity" />

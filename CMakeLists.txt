@@ -31,6 +31,10 @@ install(TARGETS nxt_system
   LIBRARY DESTINATION lib
 
 )
+install(
+  DIRECTORY config
+  DESTINATION share/${PROJECT_NAME}
+)
 install(DIRECTORY
   models
   DESTINATION share/${PROJECT_NAME}
