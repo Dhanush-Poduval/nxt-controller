@@ -31,11 +31,17 @@ install(TARGETS nxt_system
   LIBRARY DESTINATION lib
 
 )
-
+install(DIRECTORY
+  models
+  DESTINATION share/${PROJECT_NAME}
+)
 install(DIRECTORY include/
   DESTINATION include
 )
-
+install(DIRECTORY
+  launch
+  DESTINATION share/${PROJECT_NAME}
+)
 install(FILES plugin.xml
   DESTINATION share/${PROJECT_NAME}
 )
