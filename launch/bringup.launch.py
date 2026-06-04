@@ -1,4 +1,5 @@
 from launch import LaunchDescription
+from launch.descriptions import executable
 from launch_ros.actions import Node
 from launch.substitutions import Command
 from launch_ros.parameter_descriptions import ParameterFile
@@ -21,7 +22,12 @@ def generate_launch_description():
         "config",
         "diff_drive_controller.yaml"
     )
-
+    teleop = Node(
+        package="teleop_twist_keyboard",
+        executable="teleop_twist_keyboard",
+        prefix="xterm -e",
+        remappings=[("cmd_vel","/diff_drive_controller/cmd_vel")]
+    )
     rsp = Node(
         package="robot_state_publisher",
         executable="robot_state_publisher",
@@ -41,5 +47,6 @@ def generate_launch_description():
 
     return LaunchDescription([
         rsp,
-        control_node
+        control_node,
+        teleop
     ])
