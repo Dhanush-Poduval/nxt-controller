@@ -22,12 +22,12 @@ def generate_launch_description():
         "config",
         "diff_drive_controller.yaml"
     )
-    teleop = Node(
-        package="teleop_twist_keyboard",
-        executable="teleop_twist_keyboard",
-        prefix="xterm -e",
-        remappings=[("cmd_vel","/diff_drive_controller/cmd_vel")]
-    )
+    # teleop = Node(
+    #     package="teleop_twist_keyboard",
+    #     executable="teleop_twist_keyboard",
+    #     prefix="xterm -e",
+    #     remappings=[("cmd_vel","/diff_drive_controller/cmd_vel")]
+    # )
     rsp = Node(
         package="robot_state_publisher",
         executable="robot_state_publisher",
@@ -48,5 +48,5 @@ def generate_launch_description():
     return LaunchDescription([
         rsp,
         control_node,
-        teleop
+        #teleop
     ])

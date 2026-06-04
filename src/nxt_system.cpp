@@ -33,7 +33,9 @@ namespace nxt_hardware {
     return hardware_interface::return_type::OK;
   };
   hardware_interface::return_type NXTSystem::write(const rclcpp::Time & /*time */, const rclcpp::Duration & /*period */){
-    std::cout<<"left_cmd : "<<left_cmd<<" right_cmd : "<<right_cmd<<std::endl;
+    if(std::abs(left_cmd)>0.001 || std::abs(right_cmd)>0.001){
+      std::cout<<"left_cmd : "<<left_cmd<<" right_cmd : "<<right_cmd<<std::endl;
+    }
     return hardware_interface::return_type::OK;
   };
 
