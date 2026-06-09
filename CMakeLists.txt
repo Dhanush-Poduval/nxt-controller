@@ -12,13 +12,16 @@ find_package(rclcpp_lifecycle REQUIRED)
 find_package(hardware_interface REQUIRED)
 find_package(pluginlib REQUIRED)
 find_package(controller_interface REQUIRED)
+find_package(PkgConfig REQUIRED)
+find_package(LIBUSB REQUIRED libusb-1.0)
 # uncomment the following section in order to fill in
 # further dependencies manually.
 # find_package(<dependency> REQUIRED)
 add_library(
-  nxt_system SHARED src/nxt_system.cpp
+  nxt_system SHARED src/nxt_system.cpp nxt/nxt.c
 )
-target_include_directories(nxt_system PUBLIC include )
+target_include_directories(nxt_system PUBLIC include ${LIBUSB_INCLUDE_DIRS})
+target_link_libraries(nxt_system ${LIBUSB_LIBRARIES})
 ament_target_dependencies(nxt_system
   rclcpp
   rclcpp_lifecycle

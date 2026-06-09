@@ -2,3 +2,4 @@ build/*
 install/*
 log/*
 con_check
+nxt_test
