@@ -7,7 +7,7 @@ struct send_message{
 };
 
 struct recieve_message {
-  uint8_t con_check[10];
+  uint8_t con_check[64];
 };
 
 typedef struct {
@@ -111,8 +111,8 @@ uint8_t check_firmware(nxt_device_t *nxt , struct send_message *send_msg,struct 
       //   printf("%02X \t ",recieve_msg->con_check[i]);
       // };
       firmware_protocol_calc(recieve_msg);
-      libusb_close(nxt->handle);
-      libusb_exit(nxt->ctx);
+      // libusb_close(nxt->handle);
+      // libusb_exit(nxt->ctx);
       return 0;
     }else {
       printf("Not connected to nxt successfully \n");
@@ -123,24 +123,32 @@ uint8_t check_firmware(nxt_device_t *nxt , struct send_message *send_msg,struct 
   }
  };
 
-// int check_port(struct check_motor *motor,char port,nxt_device_t *nxt){
-//   uint8_t port_value;
-//   if(port=='A'){
-//     port_value=0x00;
-//   }else if(port=='B'){
-//     port_value=0x01;
-//   }else {
-//     port_value=0x02;
-//   };
-//   motor->byte1=0x00;
-//   motor->byte2=0x06;
-//   motor->port= port_value;
-//   send(&nxt,)
-// }
-//
-// uint8_t motor_write(){
-//
-// };
+int read_channel_values(char port,nxt_device_t *nxt){
+  uint8_t port_value;
+  if(port=='A'){
+    port_value=0x00;
+  }else if(port=='B'){
+    port_value=0x01;
+  }else {
+    port_value=0x02;
+  };
+  struct send_message send_msg;
+  struct recieve_message rec_msg;
+  send_msg.con_send[0]=0x00;
+  send_msg.con_send[1]=0x06;
+  send_msg.con_send[2]=port_value;
+  send(nxt,&send_msg);
+  recieve(nxt,&rec_msg);
+  if(rec_msg.con_check[2]==0){
+    printf("Recieved motor status \n");
+    for(int i=0;i<24;i++){
+      printf("%02X ",rec_msg.con_check[i]);
+    };
+
+  };
+  return 0;
+};
+
 
 int main(){
   uint8_t a;
@@ -148,4 +156,8 @@ int main(){
   struct recieve_message rec_msg;
   nxt_device_t nxt;
   check_firmware(&nxt,&send_msg,&rec_msg);
+  read_channel_values('B',&nxt);
+  libusb_close(nxt.handle);
+  libusb_exit(nxt.ctx);
+  return 0;
 }
