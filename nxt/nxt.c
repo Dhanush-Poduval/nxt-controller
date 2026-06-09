@@ -66,17 +66,20 @@ uint8_t check_firmware(struct send_message *send_msg,struct recieve_message *rec
   libusb_device_handle *handle=NULL;
   libusb_context *ctx=NULL;
   establish_connection(&ctx , &handle);
-  a=send(handle ,send_msg);
-  recieve(handle , recieve_msg);
-  if(recieve_msg->con_check[2]==0){
-    printf("Successfully connected to the nxt and communication established \n");
-    return 0;
+  if(establish_connection(&ctx,&handle)==0){
+    a=send(handle ,send_msg);
+    recieve(handle , recieve_msg);
+    if(recieve_msg->con_check[2]==0){
+      printf("Successfully connected to the nxt and communication established \n");
+      return 0;
+    }else {
+      printf("Not connected to nxt successfully \n");
+      return 1;
+    }
   }else {
-    printf("Not connected to nxt successfully \n");
     return 1;
   }
-
-};
+ };
 
 int main(){
   uint8_t a;
