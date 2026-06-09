@@ -3,9 +3,7 @@
 #include "nxt_hardware/nxt.h"
 
 struct send_message{
-  uint8_t con_send[2];
-}send_msg={
-  .con_send={0x01,0x88},
+  uint8_t con_send[10];
 };
 
 struct recieve_message {
@@ -99,6 +97,8 @@ uint8_t recieve(nxt_device_t *nxt,  struct recieve_message *recieve_msg){
 
 uint8_t check_firmware(nxt_device_t *nxt , struct send_message *send_msg,struct recieve_message *recieve_msg){
   uint8_t a;
+  send_msg->con_send[0]=0x01;
+  send_msg->con_send[1]=0x88;
   nxt->ctx=NULL;
   nxt->handle=NULL;
   a=establish_connection(nxt);
@@ -123,17 +123,19 @@ uint8_t check_firmware(nxt_device_t *nxt , struct send_message *send_msg,struct 
   }
  };
 
-// int check_port(struct check_motor *motor,char port){
-//   check_firmware
-//   int port_value;
+// int check_port(struct check_motor *motor,char port,nxt_device_t *nxt){
+//   uint8_t port_value;
 //   if(port=='A'){
-//     port_value=0;
+//     port_value=0x00;
 //   }else if(port=='B'){
-//     port_value=1;
+//     port_value=0x01;
 //   }else {
-//     port_value=2;
+//     port_value=0x02;
 //   };
-//   send()
+//   motor->byte1=0x00;
+//   motor->byte2=0x06;
+//   motor->port= port_value;
+//   send(&nxt,)
 // }
 //
 // uint8_t motor_write(){
@@ -142,6 +144,7 @@ uint8_t check_firmware(nxt_device_t *nxt , struct send_message *send_msg,struct 
 
 int main(){
   uint8_t a;
+  struct send_message send_msg;
   struct recieve_message rec_msg;
   nxt_device_t nxt;
   check_firmware(&nxt,&send_msg,&rec_msg);
