@@ -11,7 +11,15 @@ struct send_message{
 struct recieve_message {
   uint8_t con_check[10];
 };
-
+int firmware_protocol_calc( struct recieve_message *rec_msg){
+  uint8_t protocol_minor = rec_msg->con_check[3];
+  uint8_t protocol_major = rec_msg->con_check[4];
+  uint8_t firmware_minor = rec_msg->con_check[5];
+  uint8_t firmware_major = rec_msg->con_check[6];
+  printf("Protocol version : %u.%u\n",protocol_major,protocol_minor);
+  printf("Firmware version : %u.%u\n",firmware_major,firmware_minor);
+  return 0;
+};
 uint8_t establish_connection(libusb_context **ctx, libusb_device_handle **dev){
   libusb_init(ctx);
   *dev=libusb_open_device_with_vid_pid(
@@ -71,9 +79,10 @@ uint8_t check_firmware(struct send_message *send_msg,struct recieve_message *rec
     recieve(handle , recieve_msg);
     if(recieve_msg->con_check[2]==0){
       printf("Successfully connected to the nxt and communication established \n");
-      for(int i=0;i<7;i++){
-        printf("%02X \t ",recieve_msg->con_check[i]);
-      };
+      // for(int i=0;i<7;i++){
+      //   printf("%02X \t ",recieve_msg->con_check[i]);
+      // };
+      firmware_protocol_calc(recieve_msg);
       libusb_close(handle);
       libusb_exit(ctx);
       return 0;
