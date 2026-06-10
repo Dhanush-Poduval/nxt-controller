@@ -3,7 +3,7 @@
 #include "nxt_hardware/nxt.h"
 
 struct send_message{
-  uint8_t con_send[10];
+  uint8_t con_send[64];
 };
 
 struct recieve_message {
@@ -149,6 +149,37 @@ int read_channel_values(char port,nxt_device_t *nxt){
   return 0;
 };
 
+void write_to_port(nxt_device_t *nxt , char port , int power ){
+  struct send_message send_msg={0};
+  struct recieve_message rec_msg;
+  uint8_t port_value;
+  if(port=='A'){
+    port_value=0x00;
+  }else if(port=='B'){
+    port_value=0x01;
+  }else {
+    port_value=0x02;
+  };
+  send_msg.con_send[0]=0x00;
+  send_msg.con_send[1]=0x04;
+  send_msg.con_send[2]=port_value;
+  send_msg.con_send[3]=power;
+  send_msg.con_send[4]=0x01;
+  send_msg.con_send[5]=0x01;
+  send_msg.con_send[6]=0;
+  send_msg.con_send[7]=0x20;
+  send_msg.con_send[8]=0x00;
+  send_msg.con_send[9]=0x00;
+  uint8_t a =send(nxt,&send_msg);
+  if(a==0){
+    recieve(nxt,&rec_msg);
+    
+  }else {
+    printf("Not able to send to motor\n");
+  }
+  
+};
+
 
 int main(){
   uint8_t a;
@@ -156,7 +187,7 @@ int main(){
   struct recieve_message rec_msg;
   nxt_device_t nxt;
   check_firmware(&nxt,&send_msg,&rec_msg);
-  read_channel_values('B',&nxt);
+  write_to_port(&nxt,'A',50);
   libusb_close(nxt.handle);
   libusb_exit(nxt.ctx);
   return 0;
