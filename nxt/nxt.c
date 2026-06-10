@@ -64,6 +64,7 @@ uint8_t establish_connection(nxt_device_t *nxt){
 };
 
 uint8_t send_commands(nxt_device_t *nxt,struct send_message *send_msg){
+
   int r=0;
   printf("Send function enetered\n");
   // libusb_context *ctx=NULL;
@@ -117,8 +118,8 @@ uint8_t check_firmware(nxt_device_t *nxt , struct send_message *send_msg,struct 
       //   printf("%02X \t ",recieve_msg->con_check[i]);
       // };
       firmware_protocol_calc(recieve_msg);
-      libusb_close(nxt->handle);
-      libusb_exit(nxt->ctx);
+      // libusb_close(nxt->handle);
+      // libusb_exit(nxt->ctx);
       return 0;
     }else {
       printf("Not connected to nxt successfully \n");
@@ -176,7 +177,7 @@ void run_motor(nxt_device_t *nxt , char port , int power ){
   send_msg.con_send[7]=0x20;
   send_msg.con_send[8]=0x00;
   send_msg.con_send[9]=0x00;
-  uint8_t a =send(nxt,&send_msg);
+  uint8_t a =send_commands(nxt,&send_msg);
   if(a==0){
     recieve(nxt,&rec_msg);
     
@@ -207,21 +208,21 @@ void break_motor(nxt_device_t *nxt , char port ){
   send_msg.con_send[7]=0;
   send_msg.con_send[8]=0;
   send_msg.con_send[9]=0x00;
-  send(nxt,&send_msg);
+  send_commands(nxt,&send_msg);
 
 
 }
 //
-// int main(){
-//   uint8_t a;
-//   struct send_message send_msg;
-//   struct recieve_message rec_msg;
-//   nxt_device_t nxt;
-//   check_firmware(&nxt,&send_msg,&rec_msg);
-//   //run_motor(&nxt,'A',50);
-//   //sleep(5);
-//   //break_motor(&nxt,'A');
-//   libusb_close(nxt.handle);
-//   libusb_exit(nxt.ctx);
-//   return 0;
-// }
+int main(){
+  uint8_t a;
+  struct send_message send_msg;
+  struct recieve_message rec_msg;
+  nxt_device_t nxt;
+  check_firmware(&nxt,&send_msg,&rec_msg);
+  run_motor(&nxt,'A',50);
+  sleep(5);
+  break_motor(&nxt,'A');
+  // libusb_close(nxt.handle);
+  // libusb_exit(nxt.ctx);
+  return 0;
+}
