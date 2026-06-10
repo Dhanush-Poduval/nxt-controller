@@ -13,7 +13,7 @@ find_package(hardware_interface REQUIRED)
 find_package(pluginlib REQUIRED)
 find_package(controller_interface REQUIRED)
 find_package(PkgConfig REQUIRED)
-find_package(LIBUSB REQUIRED libusb-1.0)
+pkg_check_modules(LIBUSB REQUIRED libusb-1.0)
 # uncomment the following section in order to fill in
 # further dependencies manually.
 # find_package(<dependency> REQUIRED)

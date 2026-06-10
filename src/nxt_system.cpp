@@ -4,11 +4,17 @@
 #include "rclcpp/rclcpp.hpp"
 #include <vector>
 #include "hardware_interface/types/hardware_interface_type_values.hpp"
+#include "nxt_hardware/nxt.h"
+nxt_device_t nxt;
 namespace nxt_hardware {
   hardware_interface::CallbackReturn NXTSystem::on_init(const hardware_interface::HardwareInfo & info){
+    std::cout<<"INit function called "<<std::endl;
+    struct send_message send_msg;
+    struct recieve_message rec_msg;
     if(hardware_interface::SystemInterface::on_init(info) != hardware_interface::CallbackReturn::SUCCESS){
       return hardware_interface::CallbackReturn::ERROR;
     };
+    check_firmware(&nxt,&send_msg , &rec_msg);
     return hardware_interface::CallbackReturn::SUCCESS;
   };
   std::vector<hardware_interface::StateInterface>NXTSystem::export_state_interfaces(){
@@ -33,7 +39,17 @@ namespace nxt_hardware {
     return hardware_interface::return_type::OK;
   };
   hardware_interface::return_type NXTSystem::write(const rclcpp::Time & /*time */, const rclcpp::Duration & /*period */){
+
     if(std::abs(left_cmd)>0.001 || std::abs(right_cmd)>0.001){
+      int power_left;
+      power_left=static_cast<int> (left_cmd*20.0);
+      if(power_left>100){
+        power_left=100;
+      };
+      if (power_left <-100){
+        power_left=-100;
+      }
+      run_motor(&nxt,'A',power_left);
       std::cout<<"left_cmd : "<<left_cmd<<" right_cmd : "<<right_cmd<<std::endl;
     }
     return hardware_interface::return_type::OK;
