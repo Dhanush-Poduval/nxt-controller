@@ -222,7 +222,7 @@ int main(){
   run_motor(&nxt,'A',13);
   sleep(5);
   break_motor(&nxt,'A');
-  // libusb_close(nxt.handle);
-  // libusb_exit(nxt.ctx);
+  libusb_close(nxt.handle);
+  libusb_exit(nxt.ctx);
   return 0;
 }
