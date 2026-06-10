@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <libusb-1.0/libusb.h>
+#include <unistd.h>
 #include "nxt_hardware/nxt.h"
 
 struct send_message{
@@ -149,7 +150,7 @@ int read_channel_values(char port,nxt_device_t *nxt){
   return 0;
 };
 
-void write_to_port(nxt_device_t *nxt , char port , int power ){
+void run_motor(nxt_device_t *nxt , char port , int power ){
   struct send_message send_msg={0};
   struct recieve_message rec_msg;
   uint8_t port_value;
@@ -180,6 +181,31 @@ void write_to_port(nxt_device_t *nxt , char port , int power ){
   
 };
 
+void break_motor(nxt_device_t *nxt , char port ){
+  struct send_message send_msg={0};
+  struct recieve_message rec_msg;
+  uint8_t port_value;
+  if(port=='A'){
+    port_value=0x00;
+  }else if(port=='B'){
+    port_value=0x01;
+  }else {
+    port_value=0x02;
+  };
+  send_msg.con_send[0]=0x00;
+  send_msg.con_send[1]=0x04;
+  send_msg.con_send[2]=port_value;
+  send_msg.con_send[3]=0;
+  send_msg.con_send[4]=0x02;
+  send_msg.con_send[5]=0;
+  send_msg.con_send[6]=0;
+  send_msg.con_send[7]=0;
+  send_msg.con_send[8]=0;
+  send_msg.con_send[9]=0x00;
+  send(nxt,&send_msg);
+
+
+}
 
 int main(){
   uint8_t a;
@@ -187,7 +213,9 @@ int main(){
   struct recieve_message rec_msg;
   nxt_device_t nxt;
   check_firmware(&nxt,&send_msg,&rec_msg);
-  write_to_port(&nxt,'A',50);
+  run_motor(&nxt,'A',50);
+  sleep(5);
+  break_motor(&nxt,'A');
   libusb_close(nxt.handle);
   libusb_exit(nxt.ctx);
   return 0;
