@@ -219,7 +219,7 @@ int main(){
   struct recieve_message rec_msg;
   nxt_device_t nxt;
   check_firmware(&nxt,&send_msg,&rec_msg);
-  run_motor(&nxt,'A',50);
+  run_motor(&nxt,'A',13);
   sleep(5);
   break_motor(&nxt,'A');
   // libusb_close(nxt.handle);
