@@ -3,3 +3,4 @@ install/*
 log/*
 con_check
 nxt_test
+**/bluetooth_test

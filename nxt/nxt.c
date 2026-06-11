@@ -34,6 +34,9 @@ struct check_motor {
   uint8_t port;
 };
 
+struct bluetooth_commands{
+  uint8_t bluetooth_cmd[64];
+};
 int firmware_protocol_calc( struct recieve_message *rec_msg){
   uint8_t protocol_minor = rec_msg->con_check[3];
   uint8_t protocol_major = rec_msg->con_check[4];
