@@ -41,7 +41,16 @@ namespace nxt_hardware {
   hardware_interface::return_type NXTSystem::write(const rclcpp::Time & /*time */, const rclcpp::Duration & /*period */){
 
     int power_left;
-    power_left=static_cast<int> (left_cmd*80.0);
+    int power_right;
+    power_right=static_cast<int> (right_cmd*20.0);
+    power_left=static_cast<int> (left_cmd*20.0);
+    if(power_right>100){
+        power_right=100;
+    };
+    if (power_right <-100){
+        power_right=-100;
+    };
+
     if(power_left>100){
         power_left=100;
     };
@@ -49,7 +58,7 @@ namespace nxt_hardware {
         power_left=-100;
     }
     run_motor(&nxt,'A',power_left);
-    
+    run_motor(&nxt,'B',power_right);
     return hardware_interface::return_type::OK;
   };
 
