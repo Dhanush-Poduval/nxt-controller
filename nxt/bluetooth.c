@@ -155,7 +155,7 @@ void run_motor_bluetooth(nxt_device_t *nxt, char port, int power ){
   send_msg.length = 12;
   
   send_message_bluetooth(nxt, &send_msg);
-  recieve_message_bluetooth(nxt, &rec_msg);
+  // recieve_message_bluetooth(nxt, &rec_msg);
 }
 
 void break_motor_bluetooth(nxt_device_t *nxt, char port ){
@@ -182,7 +182,7 @@ void break_motor_bluetooth(nxt_device_t *nxt, char port ){
   send_msg.length = 12;
   
   send_message_bluetooth(nxt, &send_msg);
-  recieve_message_bluetooth(nxt, &rec_msg);
+  // recieve_message_bluetooth(nxt, &rec_msg);
 }
 
 // int main(){

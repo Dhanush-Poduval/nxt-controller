@@ -5,7 +5,7 @@
 #include "hardware_interface/system_interface.hpp"
 #include "hardware_interface/types/hardware_interface_return_values.hpp"
 #include "hardware_interface/hardware_info.hpp"
-
+#include "nxt_hardware/nxt_bluetooth.h"
 namespace nxt_hardware {
   class NXTSystem: public hardware_interface::SystemInterface{
     public:
@@ -20,6 +20,7 @@ namespace nxt_hardware {
         const rclcpp::Time & time,
         const rclcpp::Duration & period) override;
     private:
+      nxt_device_t nxt;
       double left_pos=0.0;
       double right_pos=0.0;
       double left_vel=0.0;
