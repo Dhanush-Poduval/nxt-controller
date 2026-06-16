@@ -140,7 +140,7 @@ void run_motor_bluetooth(nxt_device_t *nxt, char port, int power ){
   else if(port == 'B') port_value = 0x01;
   else port_value = 0x02;
   
-  send_msg.con_send[0] = 0x00; 
+  send_msg.con_send[0] = 0x80; 
   send_msg.con_send[1] = 0x04;
   send_msg.con_send[2] = port_value;
   send_msg.con_send[3] = (int8_t)power;
@@ -155,6 +155,7 @@ void run_motor_bluetooth(nxt_device_t *nxt, char port, int power ){
   send_msg.length = 12;
   
   send_message_bluetooth(nxt, &send_msg);
+
   // recieve_message_bluetooth(nxt, &rec_msg);
 }
 
@@ -167,7 +168,7 @@ void break_motor_bluetooth(nxt_device_t *nxt, char port ){
   else if(port == 'B') port_value = 0x01;
   else port_value = 0x02;
   
-  send_msg.con_send[0] = 0x00;
+  send_msg.con_send[0] = 0x80;
   send_msg.con_send[1] = 0x04;
   send_msg.con_send[2] = port_value;
   send_msg.con_send[3] = 0;
@@ -183,25 +184,55 @@ void break_motor_bluetooth(nxt_device_t *nxt, char port ){
   
   send_message_bluetooth(nxt, &send_msg);
   // recieve_message_bluetooth(nxt, &rec_msg);
+};
+
+void wheel_encoder_data(nxt_device_t *nxt, char port){
+  struct send_message send_msg ={0};
+  struct recieve_message rec_msg ={0};
+  int port_value;
+  if(port=='A'){
+    port_value=0x00;
+  }else if(port=='B'){
+    port_value=0x01;
+  }else {
+    port_value=0x02;
+  }
+  send_msg.con_send[0]=0x00;
+  send_msg.con_send[1]=0x06;
+  send_msg.con_send[2]=port_value;
+  send_msg.length=3;
+  send_message_bluetooth(nxt,&send_msg);
+  recieve_message_bluetooth(nxt,&rec_msg);
+  for(int i = 0; i < 25; i++){
+    printf("[%d] = %02X\n", i, rec_msg.con_check[i]);
+  };
+  int32_t rotation_count;
+  rotation_count=(int32_t)rec_msg.con_check[21] | ((int32_t)rec_msg.con_check[22]<<8) | ((int32_t)rec_msg.con_check[23]<< 16) | ((int32_t)rec_msg.con_check[24]<<24);
+  printf("Rotation count : %d \n",rotation_count);
+  
 }
 
-// int main(){
-//   nxt_device_t nxt; 
-//
-//   if (establish_connection(&nxt) != 0) {
-//      return 1;
-//   }
-//
-//   printf("Executing break_motor...\n");
-//   run_motor(&nxt, 'A',50);
-//   run_motor(&nxt,'B',50);
-//   printf("Sleeping for 5 seconds...\n");
-//   sleep(5);
-//   break_motor(&nxt,'B');
-//   sleep(5);
-//   printf("Executing run_motor...\n");
-//   break_motor(&nxt, 'A');
-//
-//   close(nxt.socket_fd);
-//   return 0;
-// }
+int main(){
+  nxt_device_t nxt; 
+
+  if (establish_connection_bluetooth(&nxt) != 0) {
+     return 1;
+  }
+
+  printf("Executing break_motor...\n");
+  run_motor_bluetooth(&nxt, 'A',-50);
+  run_motor_bluetooth(&nxt,'B',-50);
+  sleep(5);
+  wheel_encoder_data(&nxt,'A');
+  wheel_encoder_data(&nxt,'B');
+  // printf("Sleeping for 5 seconds...\n");
+  sleep(5);
+  break_motor_bluetooth(&nxt,'B');
+  break_motor_bluetooth(&nxt,'A');
+  // sleep(5);
+  // printf("Executing run_motor...\n");
+  // break_motor(&nxt, 'A');
+
+  close(nxt.socket_fd);
+  return 0;
+}
