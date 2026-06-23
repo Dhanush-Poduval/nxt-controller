@@ -220,13 +220,10 @@ int main(){
   }
 
   printf("Executing break_motor...\n");
-  run_motor_bluetooth(&nxt, 'A',-50);
-  run_motor_bluetooth(&nxt,'B',-50);
-  sleep(5);
-  wheel_encoder_data(&nxt,'A');
-  wheel_encoder_data(&nxt,'B');
+  run_motor_bluetooth(&nxt, 'A',-75);
+  run_motor_bluetooth(&nxt,'B',0);
   // printf("Sleeping for 5 seconds...\n");
-  sleep(5);
+  sleep(10);
   break_motor_bluetooth(&nxt,'B');
   break_motor_bluetooth(&nxt,'A');
   // sleep(5);

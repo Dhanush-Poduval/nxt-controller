@@ -37,7 +37,7 @@ struct check_motor {
 struct bluetooth_commands{
   uint8_t bluetooth_cmd[64];
 };
-int firmware_protocol_calc( struct recieve_message *rec_msg){
+int firmware_protocol_calc( struct recieve_message_usb *rec_msg){
   uint8_t protocol_minor = rec_msg->con_check[3];
   uint8_t protocol_major = rec_msg->con_check[4];
   uint8_t firmware_minor = rec_msg->con_check[5];
@@ -47,7 +47,7 @@ int firmware_protocol_calc( struct recieve_message *rec_msg){
   return 0;
 };
 
-uint8_t establish_connection(nxt_device_t *nxt){
+uint8_t establish_connection(nxt_device_usb_t *nxt){
   nxt->ctx=NULL;
   nxt->handle=NULL;
   libusb_init(&nxt->ctx);
@@ -66,7 +66,7 @@ uint8_t establish_connection(nxt_device_t *nxt){
   return 0;
 };
 
-uint8_t send_commands(nxt_device_t *nxt,struct send_message *send_msg){
+uint8_t send_commands(nxt_device_usb_t *nxt,struct send_message_usb *send_msg){
 
   int r=0;
   printf("Send function enetered\n");
@@ -85,7 +85,7 @@ uint8_t send_commands(nxt_device_t *nxt,struct send_message *send_msg){
   };
 };
 
-uint8_t recieve(nxt_device_t *nxt,  struct recieve_message *recieve_msg){
+uint8_t recieve(nxt_device_usb_t *nxt,  struct recieve_message_usb *recieve_msg){
   // libusb_context *ctx=NULL;
   int r=0;
   // libusb_device_handle *handle=NULL;
@@ -103,7 +103,7 @@ uint8_t recieve(nxt_device_t *nxt,  struct recieve_message *recieve_msg){
   
 };
 
-uint8_t check_firmware(nxt_device_t *nxt , struct send_message *send_msg,struct recieve_message *recieve_msg){
+uint8_t check_firmware(nxt_device_usb_t *nxt , struct send_message_usb *send_msg,struct recieve_message_usb *recieve_msg){
   uint8_t a;
   // send_msg->con_send[0]=0x02;
   // send_msg->con_send[1]=0x00;
@@ -133,7 +133,7 @@ uint8_t check_firmware(nxt_device_t *nxt , struct send_message *send_msg,struct 
   }
  };
 
-int read_channel_values(char port,nxt_device_t *nxt){
+int read_channel_values(char port,nxt_device_usb_t *nxt){
   uint8_t port_value;
   if(port=='A'){
     port_value=0x00;
@@ -142,12 +142,12 @@ int read_channel_values(char port,nxt_device_t *nxt){
   }else {
     port_value=0x02;
   };
-  struct send_message send_msg;
-  struct recieve_message rec_msg;
+  struct send_message_usb send_msg;
+  struct recieve_message_usb rec_msg;
   send_msg.con_send[0]=0x00;
   send_msg.con_send[1]=0x06;
   send_msg.con_send[2]=port_value;
-  send(nxt,&send_msg);
+  send_commands(nxt,&send_msg);
   recieve(nxt,&rec_msg);
   if(rec_msg.con_check[2]==0){
     printf("Recieved motor status \n");
@@ -159,9 +159,9 @@ int read_channel_values(char port,nxt_device_t *nxt){
   return 0;
 };
 
-void run_motor(nxt_device_t *nxt , char port , int power ){
-  struct send_message send_msg={0};
-  struct recieve_message rec_msg;
+void run_motor(nxt_device_usb_t *nxt , char port , int power ){
+  struct send_message_usb send_msg={0};
+  struct recieve_message_usb rec_msg;
   uint8_t port_value;
   if(port=='A'){
     port_value=0x00;
@@ -170,7 +170,7 @@ void run_motor(nxt_device_t *nxt , char port , int power ){
   }else {
     port_value=0x02;
   };
-  send_msg.con_send[0]=0x00;
+  send_msg.con_send[0]=0x80;
   send_msg.con_send[1]=0x04;
   send_msg.con_send[2]=port_value;
   send_msg.con_send[3]=power;
@@ -180,19 +180,13 @@ void run_motor(nxt_device_t *nxt , char port , int power ){
   send_msg.con_send[7]=0x20;
   send_msg.con_send[8]=0x00;
   send_msg.con_send[9]=0x00;
-  uint8_t a =send_commands(nxt,&send_msg);
-  if(a==0){
-    recieve(nxt,&rec_msg);
-    
-  }else {
-    printf("Not able to send to motor\n");
-  }
+  send_commands(nxt,&send_msg);
   
 };
 
-void break_motor(nxt_device_t *nxt , char port ){
-  struct send_message send_msg={0};
-  struct recieve_message rec_msg;
+void break_motor(nxt_device_usb_t *nxt , char port ){
+  struct send_message_usb send_msg={0};
+  struct recieve_message_usb rec_msg;
   uint8_t port_value;
   if(port=='A'){
     port_value=0x00;
@@ -201,7 +195,7 @@ void break_motor(nxt_device_t *nxt , char port ){
   }else {
     port_value=0x02;
   };
-  send_msg.con_send[0]=0x00;
+  send_msg.con_send[0]=0x80;
   send_msg.con_send[1]=0x04;
   send_msg.con_send[2]=port_value;
   send_msg.con_send[3]=0;
@@ -216,16 +210,17 @@ void break_motor(nxt_device_t *nxt , char port ){
 
 }
 //
-int main(){
-  uint8_t a;
-  struct send_message send_msg;
-  struct recieve_message rec_msg;
-  nxt_device_t nxt;
-  check_firmware(&nxt,&send_msg,&rec_msg);
-  run_motor(&nxt,'A',13);
-  sleep(5);
-  break_motor(&nxt,'A');
-  libusb_close(nxt.handle);
-  libusb_exit(nxt.ctx);
-  return 0;
-}
+// int main(){
+//   uint8_t a;
+//   struct send_message_usb send_msg;
+//   struct recieve_message_usb rec_msg;
+//   nxt_device_usb_t nxt;
+//   check_firmware(&nxt,&send_msg,&rec_msg);
+//   run_motor(&nxt,'A',100);
+//   sleep(5);
+//   break_motor(&nxt,'A');
+//   libusb_release_interface(nxt.handle, 0);
+//   libusb_close(nxt.handle);
+//   libusb_exit(nxt.ctx);
+//   return 0;
+// }

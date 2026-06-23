@@ -1,9 +1,7 @@
 from launch import LaunchDescription
-from launch.descriptions import executable
 from launch_ros.actions import Node
 from launch.substitutions import Command
 from launch_ros.parameter_descriptions import ParameterFile
-from launch_ros.substitutions import FindPackageShare
 from ament_index_python.packages import get_package_share_directory
 import os
 
@@ -22,12 +20,7 @@ def generate_launch_description():
         "config",
         "diff_drive_controller.yaml"
     )
-    # teleop = Node(
-    #     package="teleop_twist_keyboard",
-    #     executable="teleop_twist_keyboard",
-    #     prefix="xterm -e",
-    #     remappings=[("cmd_vel","/diff_drive_controller/cmd_vel")]
-    # )
+
     rsp = Node(
         package="robot_state_publisher",
         executable="robot_state_publisher",
@@ -40,7 +33,30 @@ def generate_launch_description():
         executable="ros2_control_node",
         parameters=[
             {"robot_description": robot_desc},
-            ParameterFile(controller_yaml, allow_substs=True)
+            ParameterFile(controller_yaml, allow_substs=True),
+            {"diff_drive_controller.enable_stamped_cmd_vel":False}
+        ],
+        remappings=[
+            ("/diff_drive_controller/cmd_vel", "/cmd_vel")
+        ],
+        output="screen"
+    )
+
+    # 1. Spawn the Joint State Broadcaster
+    joint_state_broadcaster_spawner = Node(
+        package="controller_manager",
+        executable="spawner",
+        arguments=["joint_state_broadcaster", "--controller-manager", "/controller_manager"],
+        output="screen"
+    )
+
+    # 2. Spawn the Diff Drive Controller and pass the param file explicitly to the spawner
+    diff_drive_controller_spawner = Node(
+        package="controller_manager",
+        executable="spawner",
+        arguments=[
+            "diff_drive_controller", 
+            "--controller-manager", "/controller_manager"
         ],
         output="screen"
     )
@@ -48,5 +64,6 @@ def generate_launch_description():
     return LaunchDescription([
         rsp,
         control_node,
-        #teleop
+        joint_state_broadcaster_spawner,
+        diff_drive_controller_spawner
     ])

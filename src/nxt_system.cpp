@@ -4,16 +4,16 @@
 #include "rclcpp/rclcpp.hpp"
 #include <vector>
 #include "hardware_interface/types/hardware_interface_type_values.hpp"
-#include "nxt_hardware/nxt_bluetooth.h"
+#include "nxt_hardware/nxt.h"
 namespace nxt_hardware {
   hardware_interface::CallbackReturn NXTSystem::on_init(const hardware_interface::HardwareInfo & info){
     std::cout<<"Init function called "<<std::endl;
-    struct send_message send_msg;
-    struct recieve_message rec_msg;
+    struct send_message_usb send_msg;
+    struct recieve_message_usb rec_msg;
     if(hardware_interface::SystemInterface::on_init(info) != hardware_interface::CallbackReturn::SUCCESS){
       return hardware_interface::CallbackReturn::ERROR;
     };
-    if(check_firmware_bluetooth(&nxt,&send_msg , &rec_msg)!=0){
+    if(check_firmware(&nxt,&send_msg , &rec_msg)!=0){
       std::cout<<"Failure in connecting to brick "<<std::endl;
     };
     return hardware_interface::CallbackReturn::SUCCESS;
@@ -58,8 +58,8 @@ namespace nxt_hardware {
     if (power_left <-100){
         power_left=-100;
     }
-    run_motor_bluetooth(&nxt,'A',power_left);
-    run_motor_bluetooth(&nxt,'B',power_right);
+    run_motor(&nxt,'A',power_left);
+    run_motor(&nxt,'B',power_right);
     return hardware_interface::return_type::OK;
   };
 

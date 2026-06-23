@@ -18,7 +18,7 @@ pkg_check_modules(LIBUSB REQUIRED libusb-1.0)
 # further dependencies manually.
 # find_package(<dependency> REQUIRED)
 add_library(
-  nxt_system SHARED src/nxt_system.cpp nxt/bluetooth.c
+  nxt_system SHARED src/nxt_system.cpp nxt/nxt.c 
 )
 target_include_directories(nxt_system PUBLIC include ${LIBUSB_INCLUDE_DIRS})
 target_link_libraries(nxt_system ${LIBUSB_LIBRARIES})
